@@ -56,6 +56,7 @@ set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_
 set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST OFF -section_id eda_board_design_boundary_scan
 set_global_assignment -name VHDL_FILE AudioCodecController.vhd
 set_global_assignment -name VHDL_FILE i2c.vhd
-set_global_assignment -name SEARCH_PATH "c:\\users\\berto\\desktop\\fpga\\chu-soc-projects\\audiocodeccontroller"
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name SEARCH_PATH "c:\\users\\berto\\desktop\\fpga\\chu-soc-projects\\audiocodeccontroller\\audiocodeccontroller\\library"
+set_global_assignment -name SEARCH_PATH "c:\\users\\berto\\desktop\\fpga\\chu-soc-projects\\audiocodeccontroller"

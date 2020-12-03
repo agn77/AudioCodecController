@@ -1,0 +1,17 @@
+
+Library IEEE;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity adc_dac is
+	port(clk, rst: in std_logic;
+	     dac_data_in: in std_logic_vector(31 downto 0);
+		  adc_data_out: out std_logic_vector(31 downto 0);
+		  m_clk, b_clk, dac_lr_clk, adc_lr_clk: out std_logic;
+		  dacdat: out std_logic;
+		  adcdat: in std_logic;
+		  load_done_tick: out std_logic
+		  );
+end adc_dac
+
+architecture arch of adc_dac is

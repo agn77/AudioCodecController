@@ -1,4 +1,7 @@
+/*
+	i2c module disgned to transfer data at 100k bits/s
 
+*/
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -79,3 +82,127 @@ process(clk, rst)
 end process;
 
 -- next-state logic
+process (state_reg, bit_reg, byte_reg, data_reg, c_reg, din
+			din, wr_i2c, i2c_sdat);
+begin
+		state_next <= sate_reg;
+		sclk_out <= '1';
+		sdat_out <= '1';
+		c_next <= c_reg + 1;  -- timer count
+		bit_next <= bit_reg;
+		byte_next <= byte_reg;
+		data_next <= data_reg;
+		ack_next <= ack_reg;
+		i2c_done_tick <= '0';
+		i2c_idle <= '0';
+		
+		case sate_reg is
+			when idle =>
+			i2c_idle <= '1';
+			if wr_i2c = '1' then
+				data_next <= din;
+				bit_next <= "000";
+				byte_next <= "00";
+				c_next <= (others => '0');
+				sate_next <= start;
+			end if;
+			
+			when start =>   -- start condition
+			sdat_out = '0';
+			if c_reg = HALF THEN
+				c_next <= (others => '0');
+				state_next <= scl_begin;
+			end if;
+			
+			when scl_begin => -- 1st half of scl = 0
+				sclk_out <= '0';
+				if c_reg = QUTR then
+					c_next <= (others => '0');
+					state_next <= data1;
+				end if;
+			
+			when data1 =>
+				sdat_out <= data_reg(23);
+				sclk_out <= '0';
+				if c_reg = QUTR then
+					c_next <= (others => '0');
+					state_next <= data2;
+				end if;
+				
+			when data2 =>
+				sdat_out <= data_reg(23);
+				if c_reg = HALF then
+					c_next <= (others => '0');
+					state_next <= data3;
+				end if;
+				
+			when data3 =>
+				sdat_out <= data_reg(23);
+				sclk_out <= '0';
+				if c_reg qutr then
+					c_next <= (others => '0');
+					if bit_reg = 7 then
+						state_next <= ack1;
+					else
+						data_next <= data_reg(22 downto 0) & '0';
+						bit_next  <= bit_reg + 1;
+						state_next <= data1;
+				   end if;
+				 end if;
+				
+			 when ack1 =>
+				sclk_out <= '0';
+				if c_reg = QUTR then
+					c_next <= (others => '0');
+					state_next <= ack2;
+				end if;
+				
+			 when ack2 =>
+				if c_reg = HALF then
+					c_next <= (others => '0');
+					state_next <= ack3;
+					ack_next <= i2c_sdat; -- read ack from slave
+				end if;
+				
+			 when ack3 =>
+				sclk_outf <= '0';
+				if c_reg = QUTR then 
+				c_next <= (others => '0');
+				if ack_reg = '1' then -- slave fails to ack
+					state_next <= scl_end;
+				else 
+					if byte_reg = 2 then -- done with 3 bytes
+						state_next <= scl_end;
+					else
+						bit_Next <= "000";
+						byte_next <= byte_reg + 1;
+						data_next <= data_reg(22 downto 0) & '0';
+						state_next <= data1;
+					end if;
+					end if;
+				end if;
+				
+			when scl_end => -- 2nd half of scl =0
+				sclk_out <= '0';
+				sdat_out <= '0';
+				if c_reg = QUTR then
+					c_next <= (others => '0');
+					state_next <= stop;
+				end if;
+				
+			when stop =>
+				sdat_out <= '0';
+				if c_reg = HALF then
+					c_next <= (others => '0');
+					state_next <= turn;
+				end if;
+			
+			when turn =>
+				if c_reg = HALF then
+					state_next <= idle;
+					i2c_done_tick <= '1';
+				end if;
+		end case;
+	end process;
+end arch; 
+			  
